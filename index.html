@@ -225,6 +225,22 @@
     }
     .open .flip-hint { opacity: 1; }
     .open .flip-hint.hidden { opacity: 0; }
+
+    /* ===================== MOBILE ===================== */
+    @media (max-width: 600px) {
+      .hint, .flip-hint { font-size: 12px; bottom: 20px; }
+
+      /* Enveloppe réduite */
+      .envelope-wrap { width: 280px; height: 196px; }
+      .env-flap-bottom {
+        border-left-width: 140px;
+        border-right-width: 140px;
+        border-bottom-width: 106px;
+      }
+      .env-flap-left  { border-top-width: 98px; border-bottom-width: 98px; border-left-width: 124px; }
+      .env-flap-right { border-top-width: 98px; border-bottom-width: 98px; border-right-width: 124px; }
+      .env-flap-top svg { width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -292,6 +308,46 @@
   const clickHint = document.getElementById('clickHint');
   const flipHint  = document.getElementById('flipHint');
 
+  // Dimensions adaptées selon la taille d'écran
+  function getDimensions() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const isMobile = vw <= 600;
+
+    if (isMobile) {
+      // Recto portrait : 88% de la largeur, max 340px, ratio A5
+      const rectoW = Math.min(Math.round(vw * 0.88), 340);
+      const rectoH = Math.round(rectoW * 1.414);
+      // Verso paysage : limité à 92% de la largeur et 60% de la hauteur
+      const versoW = Math.min(Math.round(vw * 0.92), 500);
+      const versoH = Math.round(versoW * 0.667);
+      return {
+        RECTO: { w: rectoW + 'px', h: rectoH + 'px' },
+        VERSO:  { w: versoW + 'px', h: versoH + 'px' }
+      };
+    } else {
+      // Desktop : dimensions fixes généreuses
+      return {
+        RECTO: { w: '420px', h: '570px' },
+        VERSO:  { w: '760px', h: '530px' }
+      };
+    }
+  }
+
+  let dims = getDimensions();
+  // Appliquer les dimensions recto dès le départ
+  cardSizer.style.width  = dims.RECTO.w;
+  cardSizer.style.height = dims.RECTO.h;
+
+  // Recalculer si on tourne l'écran
+  window.addEventListener('resize', () => {
+    if (!opened) {
+      dims = getDimensions();
+      cardSizer.style.width  = dims.RECTO.w;
+      cardSizer.style.height = dims.RECTO.h;
+    }
+  });
+
   // Dimensions recto (portrait) et verso (paysage)
   const RECTO = { w: '420px', h: '570px' };
   const VERSO  = { w: '760px', h: '530px' };
@@ -320,7 +376,8 @@
 
     // À mi-chemin (450ms = moitié de 900ms), la carte est de profil → changer les dimensions
     setTimeout(() => {
-      const target = goingToVerso ? VERSO : RECTO;
+      dims = getDimensions();
+      const target = goingToVerso ? dims.VERSO : dims.RECTO;
       cardSizer.style.width  = target.w;
       cardSizer.style.height = target.h;
     }, 450);
