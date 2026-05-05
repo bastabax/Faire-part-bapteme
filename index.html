@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faire-part de baptême</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel:wght@300;400&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      background: radial-gradient(ellipse at 30% 40%, #f5ede2, #e2d3c0 60%, #c9b8a0);
+      overflow: hidden;
+    }
+
+    /* Particules décoratives */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      background: rgba(180,150,110,0.4);
+      pointer-events: none;
+      z-index: 0;
+      animation: float linear infinite;
+    }
+    @keyframes float {
+      0%   { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* Hint text */
+    .hint {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      color: rgba(100,80,55,0.7);
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      transition: opacity 0.5s;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .hint.hidden { opacity: 0; }
+
+    /* Scène 3D */
+    .scene {
+      perspective: 1400px;
+      cursor: pointer;
+      z-index: 2;
+      position: relative;
+    }
+
+    /* === ENVELOPPE === */
+    .envelope-wrap {
+      position: relative;
+      width: 340px;
+      height: 240px;
+    }
+
+    .env-body {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #ede0d0 0%, #d9c9b3 100%);
+      box-shadow:
+        0 20px 60px rgba(0,0,0,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.4);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .env-body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, transparent 49.5%, rgba(0,0,0,0.06) 49.5%, rgba(0,0,0,0.06) 50.5%, transparent 50.5%),
+        linear-gradient(225deg, transparent 49.5%, rgba(0,0,0,0.06) 49.5%, rgba(0,0,0,0.06) 50.5%, transparent 50.5%);
+    }
+
+    .env-flap-bottom {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 0;
+      border-left: 170px solid transparent;
+      border-right: 170px solid transparent;
+      border-bottom: 130px solid #c9b89e;
+    }
+
+    .env-flap-left {
+      position: absolute;
+      top: 0; left: 0;
+      width: 0; height: 0;
+      border-top: 120px solid transparent;
+      border-bottom: 120px solid transparent;
+      border-left: 150px solid #d4c5b0;
+    }
+    .env-flap-right {
+      position: absolute;
+      top: 0; right: 0;
+      width: 0; height: 0;
+      border-top: 120px solid transparent;
+      border-bottom: 120px solid transparent;
+      border-right: 150px solid #cbbba5;
+    }
+
+    .env-flap-top {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      transform-origin: top center;
+      transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 5;
+    }
+    .env-flap-top svg { width: 100%; display: block; }
+
+    .open .env-flap-top {
+      transform: rotateX(-180deg);
+    }
+
+    .seal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px; height: 44px;
+      background: radial-gradient(circle, #c0956a, #9b6e42);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: rgba(255,255,255,0.85);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15);
+      z-index: 6;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .open .seal {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.7);
+      pointer-events: none;
+    }
+
+    /* === CARTE === */
+    .card-wrap {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      z-index: 20;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, 20px);
+      transition:
+        opacity 0.7s 0.5s ease,
+        transform 0.7s 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .open .card-wrap {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+    }
+
+    .card-3d { perspective: 1200px; }
+
+    /* card-sizer : dimensions gérées en JS, sans transition CSS */
+    .card-sizer {
+      width: 420px;
+      height: 570px;
+      /* Pas de transition ici — le changement se fait en JS au bon moment */
+    }
+
+    .card {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.15);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .card:not(.flipped):hover {
+      transform: perspective(1200px) rotateY(8deg) rotateX(-3deg);
+    }
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    /* Faces */
+    .face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .back {
+      transform: rotateY(180deg);
+    }
+    .flip-hint {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      color: rgba(100,80,55,0.7);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      opacity: 0;
+      transition: opacity 0.6s;
+      pointer-events: none;
+      z-index: 30;
+    }
+    .open .flip-hint { opacity: 1; }
+    .open .flip-hint.hidden { opacity: 0; }
+  </style>
+</head>
+<body>
+
+<div class="hint" id="clickHint">Cliquez sur l'enveloppe pour l'ouvrir</div>
+<div class="flip-hint" id="flipHint">Cliquez sur la carte pour la retourner</div>
+
+<div class="scene" id="scene">
+  <div class="envelope-wrap">
+    <div class="env-body">
+      <div class="env-flap-left"></div>
+      <div class="env-flap-right"></div>
+      <div class="env-flap-bottom"></div>
+    </div>
+    <div class="env-flap-top">
+      <svg viewBox="0 0 340 140" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="0,0 340,0 170,100" fill="#cfc0aa"/>
+      </svg>
+    </div>
+    <div class="seal">✝</div>
+  </div>
+</div>
+
+<!-- Carte centrée indépendamment de l'enveloppe -->
+<div class="card-wrap" id="cardWrap">
+  <div class="card-3d">
+    <div class="card-sizer" id="cardSizer">
+    <div class="card" id="card">
+
+      <!-- RECTO -->
+      <div class="face front">
+        <img src="recto.jpg" alt="Faire-part recto" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+
+      <!-- VERSO -->
+      <div class="face back">
+        <img src="verso.jpg" alt="Faire-part verso" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+
+    </div>
+    </div><!-- /card-sizer -->
+  </div>
+</div>
+
+<script>
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left: ${Math.random()*100}%;
+      animation-duration: ${6 + Math.random()*10}s;
+      animation-delay: ${Math.random()*8}s;
+      width: ${2 + Math.random()*4}px;
+      height: ${2 + Math.random()*4}px;
+      opacity: ${0.2 + Math.random()*0.4};
+    `;
+    document.body.appendChild(p);
+  }
+
+  const scene     = document.getElementById('scene');
+  const card      = document.getElementById('card');
+  const cardSizer = document.getElementById('cardSizer');
+  const cardWrap  = document.getElementById('cardWrap');
+  const body      = document.body;
+  const clickHint = document.getElementById('clickHint');
+  const flipHint  = document.getElementById('flipHint');
+
+  // Dimensions recto (portrait) et verso (paysage)
+  const RECTO = { w: '420px', h: '570px' };
+  const VERSO  = { w: '760px', h: '530px' };
+
+  let opened  = false;
+  let flipped = false;
+  let animating = false;
+
+  scene.addEventListener('click', () => {
+    if (!opened) {
+      body.classList.add('open');
+      scene.style.pointerEvents = 'none';
+      clickHint.classList.add('hidden');
+      opened = true;
+    }
+  });
+
+  cardWrap.addEventListener('click', () => {
+    if (!opened || animating) return;
+    animating = true;
+
+    const goingToVerso = !flipped;
+
+    // Lancer la rotation
+    card.classList.toggle('flipped');
+
+    // À mi-chemin (450ms = moitié de 900ms), la carte est de profil → changer les dimensions
+    setTimeout(() => {
+      const target = goingToVerso ? VERSO : RECTO;
+      cardSizer.style.width  = target.w;
+      cardSizer.style.height = target.h;
+    }, 450);
+
+    // Fin de l'animation
+    setTimeout(() => {
+      flipped = goingToVerso;
+      flipHint.classList.toggle('hidden', flipped);
+      animating = false;
+    }, 900);
+  });
+</script>
+</body>
+</html>
