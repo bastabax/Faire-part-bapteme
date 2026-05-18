@@ -19,7 +19,6 @@
       overflow: hidden;
     }
 
-    /* Particules décoratives */
     .particle {
       position: fixed;
       border-radius: 50%;
@@ -35,7 +34,6 @@
       100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
     }
 
-    /* Hint text */
     .hint {
       position: fixed;
       bottom: 32px;
@@ -52,7 +50,6 @@
     }
     .hint.hidden { opacity: 0; }
 
-    /* Scène 3D */
     .scene {
       perspective: 1400px;
       cursor: pointer;
@@ -60,7 +57,6 @@
       position: relative;
     }
 
-    /* === ENVELOPPE === */
     .envelope-wrap {
       position: relative;
       width: 340px;
@@ -71,9 +67,7 @@
       position: absolute;
       inset: 0;
       background: linear-gradient(160deg, #ede0d0 0%, #d9c9b3 100%);
-      box-shadow:
-        0 20px 60px rgba(0,0,0,0.18),
-        inset 0 1px 0 rgba(255,255,255,0.4);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.4);
       border-radius: 3px;
       overflow: hidden;
     }
@@ -122,15 +116,11 @@
       z-index: 5;
     }
     .env-flap-top svg { width: 100%; display: block; }
-
-    .open .env-flap-top {
-      transform: rotateX(-180deg);
-    }
+    .open .env-flap-top { transform: rotateX(-180deg); }
 
     .seal {
       position: absolute;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       width: 44px; height: 44px;
       background: radial-gradient(circle, #c0956a, #9b6e42);
@@ -150,18 +140,14 @@
       pointer-events: none;
     }
 
-    /* === CARTE === */
     .card-wrap {
       position: fixed;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       z-index: 20;
       pointer-events: none;
       opacity: 0;
       transform: translate(-50%, 20px);
-      transition:
-        opacity 0.7s 0.5s ease,
-        transform 0.7s 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: opacity 0.7s 0.5s ease, transform 0.7s 0.5s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .open .card-wrap {
       opacity: 1;
@@ -171,32 +157,25 @@
 
     .card-3d { perspective: 1200px; }
 
-    /* card-sizer : dimensions gérées en JS, sans transition CSS */
     .card-sizer {
       width: 420px;
       height: 570px;
-      /* Pas de transition ici — le changement se fait en JS au bon moment */
     }
 
     .card {
       position: relative;
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       transform-style: preserve-3d;
       transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 30px 80px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.15);
       border-radius: 4px;
       cursor: pointer;
     }
-
     .card:not(.flipped):hover {
       transform: perspective(1200px) rotateY(8deg) rotateX(-3deg);
     }
-    .card.flipped {
-      transform: rotateY(180deg);
-    }
+    .card.flipped { transform: rotateY(180deg); }
 
-    /* Faces */
     .face {
       position: absolute;
       inset: 0;
@@ -204,10 +183,9 @@
       border-radius: 4px;
       overflow: hidden;
     }
+    .back { transform: rotateY(180deg); }
 
-    .back {
-      transform: rotateY(180deg);
-    }
+    /* Hint retourner */
     .flip-hint {
       position: fixed;
       bottom: 32px;
@@ -222,21 +200,131 @@
       transition: opacity 0.6s;
       pointer-events: none;
       z-index: 30;
+      white-space: nowrap;
     }
     .open .flip-hint { opacity: 1; }
     .open .flip-hint.hidden { opacity: 0; }
 
+    /* === LIEN ATTENTION === */
+    .alert-trigger {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: #b04040;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s;
+      z-index: 30;
+      white-space: nowrap;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .alert-trigger:hover { color: #7a1a1a; }
+    .open.verso-shown .alert-trigger { opacity: 1; pointer-events: auto; }
+
+    /* === ENCART ALERTE === */
+    .alert-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(80,50,30,0.45);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .alert-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .alert-box {
+      position: relative;
+      background: linear-gradient(160deg, #fdf6ec, #f5e8d0);
+      border: 1px solid rgba(180,140,80,0.5);
+      border-radius: 6px;
+      padding: 40px 36px 32px;
+      max-width: 440px;
+      width: 88%;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.6);
+      text-align: center;
+      transform: scale(0.92);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .alert-overlay.visible .alert-box { transform: scale(1); }
+
+    .alert-corner {
+      position: absolute;
+      width: 22px; height: 22px;
+      border-color: #c4a06a;
+      border-style: solid;
+      opacity: 0.5;
+    }
+    .alert-corner.tl { top: 8px; left: 8px;   border-width: 1px 0 0 1px; }
+    .alert-corner.tr { top: 8px; right: 8px;   border-width: 1px 1px 0 0; }
+    .alert-corner.bl { bottom: 8px; left: 8px;  border-width: 0 0 1px 1px; }
+    .alert-corner.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+
+    .alert-close {
+      position: absolute;
+      top: 10px; left: 14px;
+      font-size: 18px;
+      color: #9a7a52;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      line-height: 1;
+      transition: color 0.2s;
+      padding: 4px;
+    }
+    .alert-close:hover { color: #5a3a1a; }
+
+    .alert-title {
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      color: #8a2020;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .alert-divider {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #c4a06a, transparent);
+      margin: 0 auto 18px;
+    }
+    .alert-main {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      line-height: 1.8;
+      color: #3a2510;
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+    .alert-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      line-height: 1.75;
+      color: #7a6040;
+      font-style: italic;
+    }
+
     /* ===================== MOBILE ===================== */
     @media (max-width: 600px) {
-      .hint, .flip-hint { font-size: 12px; bottom: 20px; }
-
-      /* Enveloppe réduite */
+      .hint, .flip-hint { font-size: 12px; bottom: 28px; }
+      .alert-trigger { font-size: 12px; bottom: 10px; }
       .envelope-wrap { width: 280px; height: 196px; }
-      .env-flap-bottom {
-        border-left-width: 140px;
-        border-right-width: 140px;
-        border-bottom-width: 106px;
-      }
+      .env-flap-bottom { border-left-width: 140px; border-right-width: 140px; border-bottom-width: 106px; }
       .env-flap-left  { border-top-width: 98px; border-bottom-width: 98px; border-left-width: 124px; }
       .env-flap-right { border-top-width: 98px; border-bottom-width: 98px; border-right-width: 124px; }
       .env-flap-top svg { width: 100%; }
@@ -247,6 +335,31 @@
 
 <div class="hint" id="clickHint">Cliquez sur l'enveloppe pour l'ouvrir</div>
 <div class="flip-hint" id="flipHint">Cliquez sur la carte pour la retourner</div>
+
+<!-- Lien déclencheur — visible uniquement sur le verso -->
+<div class="alert-trigger" id="alertTrigger">⚠ ATTENTION CHANGEMENT — cliquer ici</div>
+
+<!-- Encart alerte -->
+<div class="alert-overlay" id="alertOverlay">
+  <div class="alert-box">
+    <div class="alert-corner tl"></div>
+    <div class="alert-corner tr"></div>
+    <div class="alert-corner bl"></div>
+    <div class="alert-corner br"></div>
+    <button class="alert-close" id="alertClose">✕</button>
+    <div class="alert-title">⚠ Attention</div>
+    <div class="alert-divider"></div>
+    <div class="alert-main">
+      Changement horaire :<br>
+      la cérémonie débutera à 11h<br>
+      RDV à 10h30 sur le parvis de l'église
+    </div>
+    <div class="alert-divider"></div>
+    <div class="alert-sub">
+      Merci de conserver les quelques places de parking de l'église pour les personnes à mobilité réduite et personnes âgées. Privilégiez le stationnement à proximité plutôt que sur place.
+    </div>
+  </div>
+</div>
 
 <div class="scene" id="scene">
   <div class="envelope-wrap">
@@ -264,7 +377,6 @@
   </div>
 </div>
 
-<!-- Carte centrée indépendamment de l'enveloppe -->
 <div class="card-wrap" id="cardWrap">
   <div class="card-3d">
     <div class="card-sizer" id="cardSizer">
@@ -281,7 +393,7 @@
       </div>
 
     </div>
-    </div><!-- /card-sizer -->
+    </div>
   </div>
 </div>
 
@@ -300,25 +412,23 @@
     document.body.appendChild(p);
   }
 
-  const scene     = document.getElementById('scene');
-  const card      = document.getElementById('card');
-  const cardSizer = document.getElementById('cardSizer');
-  const cardWrap  = document.getElementById('cardWrap');
-  const body      = document.body;
-  const clickHint = document.getElementById('clickHint');
-  const flipHint  = document.getElementById('flipHint');
+  const scene        = document.getElementById('scene');
+  const card         = document.getElementById('card');
+  const cardSizer    = document.getElementById('cardSizer');
+  const cardWrap     = document.getElementById('cardWrap');
+  const body         = document.body;
+  const clickHint    = document.getElementById('clickHint');
+  const flipHint     = document.getElementById('flipHint');
+  const alertTrigger = document.getElementById('alertTrigger');
+  const alertOverlay = document.getElementById('alertOverlay');
+  const alertClose   = document.getElementById('alertClose');
 
-  // Dimensions adaptées selon la taille d'écran
   function getDimensions() {
     const vw = window.innerWidth;
-    const vh = window.innerHeight;
     const isMobile = vw <= 600;
-
     if (isMobile) {
-      // Recto portrait : 88% de la largeur, max 340px, ratio A5
       const rectoW = Math.min(Math.round(vw * 0.88), 340);
       const rectoH = Math.round(rectoW * 1.414);
-      // Verso paysage : limité à 92% de la largeur et 60% de la hauteur
       const versoW = Math.min(Math.round(vw * 0.92), 500);
       const versoH = Math.round(versoW * 0.667);
       return {
@@ -326,7 +436,6 @@
         VERSO:  { w: versoW + 'px', h: versoH + 'px' }
       };
     } else {
-      // Desktop : dimensions fixes généreuses
       return {
         RECTO: { w: '420px', h: '570px' },
         VERSO:  { w: '760px', h: '530px' }
@@ -335,11 +444,9 @@
   }
 
   let dims = getDimensions();
-  // Appliquer les dimensions recto dès le départ
   cardSizer.style.width  = dims.RECTO.w;
   cardSizer.style.height = dims.RECTO.h;
 
-  // Recalculer si on tourne l'écran
   window.addEventListener('resize', () => {
     if (!opened) {
       dims = getDimensions();
@@ -348,12 +455,8 @@
     }
   });
 
-  // Dimensions recto (portrait) et verso (paysage)
-  const RECTO = { w: '420px', h: '570px' };
-  const VERSO  = { w: '760px', h: '530px' };
-
-  let opened  = false;
-  let flipped = false;
+  let opened    = false;
+  let flipped   = false;
   let animating = false;
 
   scene.addEventListener('click', () => {
@@ -370,11 +473,8 @@
     animating = true;
 
     const goingToVerso = !flipped;
-
-    // Lancer la rotation
     card.classList.toggle('flipped');
 
-    // À mi-chemin (450ms = moitié de 900ms), la carte est de profil → changer les dimensions
     setTimeout(() => {
       dims = getDimensions();
       const target = goingToVerso ? dims.VERSO : dims.RECTO;
@@ -382,12 +482,29 @@
       cardSizer.style.height = target.h;
     }, 450);
 
-    // Fin de l'animation
     setTimeout(() => {
       flipped = goingToVerso;
+      body.classList.toggle('verso-shown', goingToVerso);
       flipHint.classList.toggle('hidden', flipped);
+      // Afficher l'encart automatiquement à chaque passage sur le verso
+      if (goingToVerso) alertOverlay.classList.add('visible');
       animating = false;
     }, 900);
+  });
+
+  // Encart alerte
+  alertTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    alertOverlay.classList.add('visible');
+  });
+
+  alertClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    alertOverlay.classList.remove('visible');
+  });
+
+  alertOverlay.addEventListener('click', (e) => {
+    if (e.target === alertOverlay) alertOverlay.classList.remove('visible');
   });
 </script>
 </body>
